@@ -1,5 +1,6 @@
 *~
 # *.elc
-ac-comphist.dat
-auto-save-list/
+/ac-comphist.dat
+/auto-save-list/
+/elpa/
 /session.*

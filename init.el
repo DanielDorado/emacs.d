@@ -60,6 +60,38 @@
    (lambda (&optional arg) "Keyboard macro." (interactive "p") (kmacro-exec-ring-item (quote ([134217765 return 33 C-home 134217765 32 61 32 34 return 61 return 33 C-home 134217765 40 backspace 34 59 return return 33] 0 "%d")) arg)))
 
 ;;
+;; Marmalade, Package Archive for Emacs Lisp
+;;
+(require 'package)
+(add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/"))
+(package-initialize)
+
+;;
+;; Below scripts gurantees all packages in package-list are installed when Emacs 
+;; is started.
+;;
+(require 'cl)
+;; Guarantee all packages are installed on start
+(defvar packages-list
+  '(clojure-mode
+    paredit)
+  "List of packages needs to be installed at launch")
+(defun has-package-not-installed ()
+  (loop for p in packages-list
+        when (not (package-installed-p p)) do (return t)
+        finally (return nil)))
+(when (has-package-not-installed)
+  ;; Check for new packages (package versions)
+  (message "%s" "Get latest versions of all packages...")
+  (package-refresh-contents)
+  (message "%s" " done.")
+  ;; Install the missing packages
+  (dolist (p packages-list)
+    (when (not (package-installed-p p))
+      (package-install p))))
+
+
+;;
 ;; Groovy
 ;;
 ;;; use groovy-mode when file ends in .groovy or has #!/bin/groovy at start
@@ -67,14 +99,6 @@
 (add-to-list 'auto-mode-alist '("\.groovy$" . groovy-mode))
 (add-to-list 'interpreter-mode-alist '("groovy" . groovy-mode))
 (add-to-list 'load-path "~/.emacs.d/")
-
-
-;;
-;; Marmalade, Package Archive for Emacs Lisp
-;;
-(require 'package)
-(add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/"))
-(package-initialize)
 
 ;;
 ;; Clojure
