@@ -60,10 +60,12 @@
    (lambda (&optional arg) "Keyboard macro." (interactive "p") (kmacro-exec-ring-item (quote ([134217765 return 33 C-home 134217765 32 61 32 34 return 61 return 33 C-home 134217765 40 backspace 34 59 return return 33] 0 "%d")) arg)))
 
 ;;
-;; Marmalade, Package Archive for Emacs Lisp
+;; Melpa, Package Archive for Emacs Lisp
+;; I before used Marmelade but some guy said that Melpa is better.
 ;;
 (require 'package)
-(add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/"))
+(add-to-list 'package-archives
+  '("melpa" . "http://melpa.milkbox.net/packages/") t)
 (package-initialize)
 
 ;;
