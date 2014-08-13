@@ -67,7 +67,8 @@
     jedi
     flymake-python-pyflakes
     rsense
-    zenburn-theme)
+    zenburn-theme
+    markdown-mode)
   "List of packages needs to be installed at launch")
 (defun has-package-not-installed ()
   (loop for p in packages-list
@@ -112,6 +113,17 @@
 (add-hook 'python-mode-hook
               (lambda ()
                 (define-key python-mode-map [f1] 'jedi:show-doc)))
+
+;; trying ipython tab completion: that works :)
+(setq
+ python-shell-interpreter "ipython"
+ python-shell-interpreter-args ""
+ python-shell-prompt-regexp "In \\[[0-9]+\\]: "
+ python-shell-prompt-output-regexp "Out\\[[0-9]+\\]: "
+ python-shell-completion-setup-code "from IPython.core.completerlib import module_completion"
+  python-shell-completion-module-string-code "';'.join(module_completion('''%s'''))\n"
+  python-shell-completion-string-code "';'.join(get_ipython().Completer.all_completions('''%s'''))\n"
+     )
 
 
 ;;
@@ -192,3 +204,9 @@
 
 ;; ZEN Burn theme. Colors. Fonts...
 (load-theme 'zenburn t)
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
