@@ -1,8 +1,8 @@
-(add-to-list 'load-path "~/.emacs.d/elisp/")
+;; (add-to-list 'load-path "~/.emacs.d/elisp/")
 
-(require 'auto-complete-config)
-(add-to-list 'ac-dictionary-directories "~/.emacs.d/elisp/ac-dict")
-(ac-config-default)
+;; (require 'auto-complete-config)
+;; (add-to-list 'ac-dictionary-directories "~/.emacs.d/elisp/ac-dict")
+;; (ac-config-default)
 
 ;;
 ;; Apparence
@@ -10,44 +10,30 @@
 (when window-system
 ;;  (add-to-list 'default-frame-alist '(background-color . "black"))
 ;  (add-to-list 'default-frame-alist '(foreground-color . "wheat")))
-(set-face-attribute 'default nil :font "Droid Sans Mono-12"))
-(modify-frame-parameters nil '((wait-for-wm . nil)))
+;; (set-face-attribute 'default nil :font "Droid Sans Mono-12"))
+;; (modify-frame-parameters nil '((wait-for-wm . nil))
+)
+
 (set-keyboard-coding-system 'utf-8)
 (set-language-environment 'utf-8)
 (global-font-lock-mode t)
-(define-key global-map [(control tab)] 'dabbrev-expand)
-(set-foreground-color "wheat")
-(set-background-color "grey22")
-(set-cursor-color "grey80")
+;; (define-key global-map [(control tab)] 'dabbrev-expand)
+;; (set-foreground-color "wheat")
+;; (set-background-color "grey22")
+;; (set-cursor-color "grey80")
+
+
 ;; (menu-bar-mode 0)
 (tool-bar-mode 0)
-
-;;
-;; PYTHON
-;;
-(autoload 'python-mode "python-mode" "Python editing mode." t)
-(setq auto-mode-alist
-      (cons '("\\.py$" . python-mode) auto-mode-alist))
-(setq interpreter-mode-alist
-      (cons '("python" . python-mode)
-            interpreter-mode-alist))
-(require 'pymacs)
-(pymacs-load "ropemacs" "rope-")
-(ac-ropemacs-initialize)
-(add-hook 'python-mode-hook
-      (lambda ()
-    (add-to-list 'ac-sources 'ac-source-ropemacs)))
-
-
 
 ;;
 ;; Added By Custom
 ;;
 (custom-set-variables
-  ;; custom-set-variables was added by Custom.
-  ;; If you edit it by hand, you could mess it up, so be careful.
-  ;; Your init file should contain only one such instance.
-  ;; If there is more than one, they won't work right.
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
  '(case-fold-search t)
  '(current-language-environment "utf-8")
  '(default-input-method "rfc1345")
@@ -76,7 +62,12 @@
 ;; Guarantee all packages are installed on start
 (defvar packages-list
   '(clojure-mode
-    paredit)
+    paredit
+    autopair
+    jedi
+    flymake-python-pyflakes
+    rsense
+    zenburn-theme)
   "List of packages needs to be installed at launch")
 (defun has-package-not-installed ()
   (loop for p in packages-list
@@ -92,6 +83,37 @@
     (when (not (package-installed-p p))
       (package-install p))))
 
+
+;;
+;; PYTHON
+;;
+;; I test **elpy** but I don't like it. Install a lot of packages
+;; autmatically.
+;;
+;; (elpy-enable)
+;;
+;; (setenv "PYTHONPATH" "/home/dani/git/hmi/hmi_common")
+;; Standard Jedi.el setting
+;; (add-hook 'python-mode-hook 'autopair-mode)
+
+(add-hook 'python-mode-hook 'jedi:setup)
+(setq jedi:complete-on-dot t)
+ ; Method signature in minibuffer. To avoid two tooltips: this and the
+ ; auto-complete one
+(setq jedi:tooltip-method nil)
+(setq jedi:use-shortcuts t)
+
+(require 'flymake-python-pyflakes)
+(add-hook 'python-mode-hook 'flymake-python-pyflakes-load)
+;; default is "pyflakes" "flake8" flake8 includes pyflakes and pep8
+(setq flymake-python-pyflakes-executable "flake8")
+;; You can pass extra arguments to the checker program.
+; (setq flymake-python-pyflakes-extra-arguments '("--ignore=W806"))
+
+(eval-after-load 'python '(define-key python-mode-map [f1] 'jedi:show-doc))
+(add-hook 'python-mode-hook
+              (lambda ()
+                (define-key python-mode-map [f1] 'jedi:show-doc)))
 
 ;;
 ;; Groovy
@@ -154,7 +176,6 @@
 (put 'upcase-region 'disabled nil)
 
 
-(setenv "PYTHONPATH" "/home/dani/git/hmi/hmi_common")
 
 ;; QML
 
@@ -167,21 +188,8 @@
  (global-whitespace-mode t)
 
 ;; auto-fill-mode
-
 (set-fill-column 80)
+(auto-fill-mode)
 
-;; org-mode
-(require 'org)
-(define-key global-map "\C-cl" 'org-store-link)
-(define-key global-map "\C-ca" 'org-agenda)
-(setq org-log-done t)
-
-;; (require 'column-marker)
-;; (mapc (lambda (hook)
-;;         (add-hook hook (lambda () (interactive) (column-marker-1 80))))
-;;       '(org-mode-hook
-;;         emacs-lisp-mode-hook
-;;         python-mode-hook
-;;         js2-mode-hook
-;;         text-mode-hook))
-(put 'downcase-region 'disabled nil)
+;; ZEN Burn theme. Colors. Fonts...
+(load-theme 'zenburn t)
