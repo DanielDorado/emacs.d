@@ -95,7 +95,6 @@
 ;; (setenv "PYTHONPATH" "/home/dani/git/hmi/hmi_common")
 ;; Standard Jedi.el setting
 ;; (add-hook 'python-mode-hook 'autopair-mode)
-
 (add-hook 'python-mode-hook 'jedi:setup)
 (setq jedi:complete-on-dot t)
  ; Method signature in minibuffer. To avoid two tooltips: this and the
@@ -110,10 +109,10 @@
 ;; You can pass extra arguments to the checker program.
 ; (setq flymake-python-pyflakes-extra-arguments '("--ignore=W806"))
 
-(eval-after-load 'python '(define-key python-mode-map [f1] 'jedi:show-doc))
 (add-hook 'python-mode-hook
               (lambda ()
                 (define-key python-mode-map [f1] 'jedi:show-doc)))
+
 
 ;;
 ;; Groovy
