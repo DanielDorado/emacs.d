@@ -1,9 +1,5 @@
 ;; (add-to-list 'load-path "~/.emacs.d/elisp/")
 
-;; (require 'auto-complete-config)
-;; (add-to-list 'ac-dictionary-directories "~/.emacs.d/elisp/ac-dict")
-;; (ac-config-default)
-
 ;;
 ;; Apparence
 ;;
@@ -37,8 +33,10 @@
  '(case-fold-search t)
  '(current-language-environment "utf-8")
  '(default-input-method "rfc1345")
+ '(fill-column 80)
  '(global-font-lock-mode t nil (font-lock))
  '(inferior-lisp-program "lein repl")
+ '(python-check-command "flake8")
  '(ruby-indent-level 4)
  '(show-paren-mode t nil (paren)))
 
@@ -84,6 +82,15 @@
     (when (not (package-installed-p p))
       (package-install p))))
 
+;;
+;; Auto complete
+;;
+
+(require 'auto-complete-config)
+;; (add-to-list 'ac-dictionary-directories "~/.emacs.d/elisp/ac-dict")
+;; (setq ac-dictionary-files (list (concat user-emacs-directory ".dict")))
+(ac-config-default)
+
 
 ;;
 ;; PYTHON
@@ -114,17 +121,35 @@
               (lambda ()
                 (define-key python-mode-map [f1] 'jedi:show-doc)))
 
-;; trying ipython tab completion: that works :)
-(setq
- python-shell-interpreter "ipython"
- python-shell-interpreter-args ""
- python-shell-prompt-regexp "In \\[[0-9]+\\]: "
- python-shell-prompt-output-regexp "Out\\[[0-9]+\\]: "
- python-shell-completion-setup-code "from IPython.core.completerlib import module_completion"
-  python-shell-completion-module-string-code "';'.join(module_completion('''%s'''))\n"
-  python-shell-completion-string-code "';'.join(get_ipython().Completer.all_completions('''%s'''))\n"
-     )
 
+;; trying ipython tab completion: that works :)
+
+(when (executable-find "ipython")
+  (setq
+   python-shell-interpreter "ipython"
+   python-shell-interpreter-args ""
+   python-shell-prompt-regexp "In \\[[0-9]+\\]: "
+   python-shell-prompt-output-regexp "Out\\[[0-9]+\\]: "
+   python-shell-completion-setup-code
+   "from IPython.core.completerlib import module_completion #SILENT-234abD3"
+   python-shell-completion-module-string-code
+   "';'.join(module_completion('''%s'''))#SILENT-234abD3"
+   python-shell-completion-string-code
+   "';'.join(get_ipython().Completer.all_completions('''%s''')) #SILENT-234abD3"
+   )
+)
+
+(defun clean-history ()
+  "Clean #SILENT in buffer"
+  (interactive)
+  (mark-whole-buffer)
+  (flush-lines "SILENT-234abD3")
+  (end-of-buffer))
+
+
+(add-hook 'inferior-python-mode-hook
+              (lambda ()
+                (define-key inferior-python-mode-map [f2] 'clean-history)))
 
 ;;
 ;; Groovy
@@ -200,13 +225,8 @@
 
 ;; auto-fill-mode
 (set-fill-column 80)
-(auto-fill-mode)
+(add-hook 'text-mode-hook 'turn-on-auto-fill)
+(add-hook 'python-mode-hook 'turn-on-auto-fill)
 
 ;; ZEN Burn theme. Colors. Fonts...
 (load-theme 'zenburn t)
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
