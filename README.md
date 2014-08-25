@@ -10,6 +10,8 @@ Installation
 On Linux: Clone this repository to: `~/.emacs.d`
 
 ```
+# install epc and jedi
+pip install epc jedi
 git clone https://github.com/purcell/emacs.d.git ~/.emacs.d
 ```
 
