@@ -22,24 +22,6 @@
 ;; (menu-bar-mode 0)
 (tool-bar-mode 0)
 
-;;
-;; Added By Custom
-;;
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(case-fold-search t)
- '(current-language-environment "utf-8")
- '(default-input-method "rfc1345")
- '(fill-column 80)
- '(global-font-lock-mode t nil (font-lock))
- '(inferior-lisp-program "lein repl")
- '(python-check-command "flake8")
- '(ruby-indent-level 4)
- '(show-paren-mode t nil (paren)))
-
 (fset 'jsmessages
    (lambda (&optional arg) "Keyboard macro." (interactive "p") (kmacro-exec-ring-item (quote ([134217765 return 33 C-home 134217765 32 61 32 34 return 61 return 33 C-home 134217765 40 backspace 34 59 return return 33] 0 "%d")) arg)))
 
@@ -121,6 +103,7 @@
               (lambda ()
                 (define-key python-mode-map [f1] 'jedi:show-doc)))
 
+(setq python-check-command "flake8")
 
 ;; trying ipython tab completion: that works :)
 
@@ -145,7 +128,6 @@
   (mark-whole-buffer)
   (flush-lines "SILENT-234abD3")
   (end-of-buffer))
-
 
 (add-hook 'inferior-python-mode-hook
               (lambda ()
