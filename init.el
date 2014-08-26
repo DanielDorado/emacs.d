@@ -206,9 +206,9 @@
  (global-whitespace-mode t)
 
 ;; auto-fill-mode
-(set-fill-column 80)
 (add-hook 'text-mode-hook 'turn-on-auto-fill)
 (add-hook 'python-mode-hook 'turn-on-auto-fill)
+(setq-default fill-column 80)
 
 ;; ZEN Burn theme. Colors. Fonts...
 (load-theme 'zenburn t)
