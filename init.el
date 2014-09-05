@@ -212,3 +212,7 @@
 
 ;; ZEN Burn theme. Colors. Fonts...
 (load-theme 'zenburn t)
+(put 'downcase-region 'disabled nil)
+
+
+(setq-default indent-tabs-mode nil)
