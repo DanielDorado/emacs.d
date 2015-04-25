@@ -93,6 +93,9 @@
 (setq jedi:tooltip-method nil)
 (setq jedi:use-shortcuts t)
 
+(add-hook 'pyvenv-post-activate-hooks 'jedi:stop-server)
+(add-hook 'pyvenv-post-activate-hooks 'jedi:start-server)
+
 (require 'flymake-python-pyflakes)
 (add-hook 'python-mode-hook 'flymake-python-pyflakes-load)
 ;; default is "pyflakes" "flake8" flake8 includes pyflakes and pep8
