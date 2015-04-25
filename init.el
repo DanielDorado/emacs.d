@@ -83,7 +83,7 @@
 ;;
 ;; (elpy-enable)
 ;;
-;; (setenv "PYTHONPATH" "/home/dani/git/hmi/hmi_common")
+(setenv "PYTHONPATH" "/home/dani/bb/companies/lib/:/home/dani/bb/companies/")
 ;; Standard Jedi.el setting
 ;; (add-hook 'python-mode-hook 'autopair-mode)
 (add-hook 'python-mode-hook 'jedi:setup)
