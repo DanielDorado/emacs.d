@@ -213,7 +213,7 @@
 ;; auto-fill-mode
 (add-hook 'text-mode-hook 'turn-on-auto-fill)
 (add-hook 'python-mode-hook 'turn-on-auto-fill)
-(setq-default fill-column 80)
+(setq-default fill-column 79)
 
 ;; ZEN Burn theme. Colors. Fonts...
 (load-theme 'zenburn t)
