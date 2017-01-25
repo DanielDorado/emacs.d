@@ -4,3 +4,6 @@
 /auto-save-list/
 /elpa/
 /session.*
+/eshell/
+/games/
+/.python-environments/

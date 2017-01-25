@@ -6,7 +6,7 @@
 (when window-system
 ;;  (add-to-list 'default-frame-alist '(background-color . "black"))
 ;  (add-to-list 'default-frame-alist '(foreground-color . "wheat")))
-  (set-face-attribute 'default nil :font "Droid Sans Mono-12")
+;;  (set-face-attribute 'default nil :font "Droid Sans Mono-12")
 ;; (modify-frame-parameters nil '((wait-for-wm . nil))
 )
 
@@ -53,7 +53,9 @@
     rsense
     zenburn-theme
     markdown-mode
+    yaml-mode
     nginx-mode)
+
   "List of packages needs to be installed at launch")
 (defun has-package-not-installed ()
   (loop for p in packages-list
