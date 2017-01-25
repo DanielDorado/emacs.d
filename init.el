@@ -10,6 +10,9 @@
 ;; (modify-frame-parameters nil '((wait-for-wm . nil))
 )
 
+;; prevent silly initial splash screen
+(setq inhibit-splash-screen t)
+
 (set-keyboard-coding-system 'utf-8)
 (set-language-environment 'utf-8)
 (global-font-lock-mode t)
@@ -49,7 +52,8 @@
     pyvenv
     rsense
     zenburn-theme
-    markdown-mode)
+    markdown-mode
+    nginx-mode)
   "List of packages needs to be installed at launch")
 (defun has-package-not-installed ()
   (loop for p in packages-list
@@ -83,7 +87,8 @@
 ;;
 ;; (elpy-enable)
 ;;
-(setenv "PYTHONPATH" "/home/dani/bb/companies/lib/:/home/dani/bb/companies/")
+;; (setenv "PYTHONPATH" "/var/opt/spark-2.0.0-bin-hadoop2.7/python/lib/py4j-0.10.1-src.zip:/var/opt/spark-2.0.0-bin-hadoop2.7/python/lib/pyspark.zip")
+(setenv "PYTHONPATH" "/var/opt/spark-2.0.0-bin-hadoop2.7/python/lib")
 ;; Standard Jedi.el setting
 ;; (add-hook 'python-mode-hook 'autopair-mode)
 (add-hook 'python-mode-hook 'jedi:setup)
@@ -93,6 +98,11 @@
 (setq jedi:tooltip-method nil)
 (setq jedi:use-shortcuts t)
 
+;; (setq jedi:server-args
+;;       '("--sys-path" "/var/opt/spark-2.0.0-bin-hadoop2.7/python/lib/py4j-0.10.1-src.zip"
+;;         "--sys-path" "/var/opt/spark-2.0.0-bin-hadoop2.7/python/lib/pyspark.zip"
+;;         "--log-level" "DEBUG"))
+
 (add-hook 'pyvenv-post-activate-hooks 'jedi:stop-server)
 (add-hook 'pyvenv-post-activate-hooks 'jedi:start-server)
 
@@ -101,7 +111,7 @@
 ;; default is "pyflakes" "flake8" flake8 includes pyflakes and pep8
 (setq flymake-python-pyflakes-executable "flake8")
 ;; You can pass extra arguments to the checker program.
-; (setq flymake-python-pyflakes-extra-arguments '("--ignore=W806"))
+(setq flymake-python-pyflakes-extra-arguments '("--ignore=W501"))
 
 (add-hook 'python-mode-hook
               (lambda ()
@@ -211,8 +221,8 @@
  (global-whitespace-mode t)
 
 ;; auto-fill-mode
-(add-hook 'text-mode-hook 'turn-on-auto-fill)
-(add-hook 'python-mode-hook 'turn-on-auto-fill)
+;; (add-hook 'text-mode-hook 'turn-on-auto-fill)
+;; (add-hook 'python-mode-hook 'turn-on-auto-fill)
 (setq-default fill-column 79)
 
 ;; ZEN Burn theme. Colors. Fonts...
@@ -221,3 +231,5 @@
 
 
 (setq-default indent-tabs-mode nil)
+
+(setenv "PATH" (concat (getenv "PATH") ":/home/dani/bin/"))
