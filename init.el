@@ -54,7 +54,8 @@
     zenburn-theme
     markdown-mode
     yaml-mode
-    nginx-mode)
+    nginx-mode
+    go-mode)
 
   "List of packages needs to be installed at launch")
 (defun has-package-not-installed ()
@@ -219,8 +220,8 @@
 ;; column-marker
 
  (require 'whitespace)
- (setq whitespace-style '(face empty tabs lines-tail trailing))
- (global-whitespace-mode t)
+;;  (setq whitespace-style '(face empty tabs lines-tail trailing))
+;; (global-whitespace-mode t)
 
 ;; auto-fill-mode
 ;; (add-hook 'text-mode-hook 'turn-on-auto-fill)
@@ -232,6 +233,7 @@
 (put 'downcase-region 'disabled nil)
 
 
-(setq-default indent-tabs-mode nil)
+;; (setq-default indent-tabs-mode nil)
 
 (setenv "PATH" (concat (getenv "PATH") ":/home/dani/bin/"))
+(setenv "GOPATH" (concat (getenv "PATH") ":/home/dani/go/"))
