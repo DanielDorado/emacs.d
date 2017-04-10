@@ -55,7 +55,9 @@
     markdown-mode
     yaml-mode
     nginx-mode
-    go-mode)
+    go-mode
+    auto-complete
+    go-autocomplete)
 
   "List of packages needs to be installed at launch")
 (defun has-package-not-installed ()
@@ -186,6 +188,31 @@
             (add-to-list 'ac-sources 'ac-source-rsense-method)
             (add-to-list 'ac-sources 'ac-source-rsense-constant)))
 
+;;
+;; Golang
+;;
+(defun my-go-mode-hook ()
+  ; Use goimports instead of go-fmt
+  (setq gofmt-command "goimports")
+  ; Call Gofmt before saving                                                    
+  (add-hook 'before-save-hook 'gofmt-before-save)
+  ; Customize compile command to run go build
+  (if (not (string-match "go" compile-command))
+      (set (make-local-variable 'compile-command)
+           "go build -v && go test -v && go vet"))
+  ; Godef jump key binding
+  ; Godef jump key binding                                                      
+  (local-set-key (kbd "M-.") 'godef-jump)
+  (local-set-key (kbd "M-,") 'pop-tag-mark)
+  (auto-complete-mode 1)
+  )
+
+(add-hook 'before-save-hook 'gofmt-before-save)
+(add-hook 'go-mode-hook 'my-go-mode-hook)
+
+;;(with-eval-after-load 'go-mode
+(require 'go-autocomplete)
+;;)
 
 ;;
 ;; Markdown
@@ -235,5 +262,22 @@
 
 ;; (setq-default indent-tabs-mode nil)
 
-(setenv "PATH" (concat (getenv "PATH") ":/home/dani/bin/"))
-(setenv "GOPATH" (concat (getenv "PATH") ":/home/dani/go/"))
+
+;;
+;; PATH and environment variables
+;;
+
+;; PATH environment
+(defun set-exec-path-from-shell-PATH ()
+  (let ((path-from-shell (replace-regexp-in-string
+                          "[ \t\n]*$"
+                          ""
+                          (shell-command-to-string "$SHELL --login -i -c 'echo $PATH'"))))
+    (setenv "PATH" path-from-shell)
+    (setq eshell-path-env path-from-shell) ; for eshell users
+    (setq exec-path (split-string path-from-shell path-separator))))
+
+(when window-system (set-exec-path-from-shell-PATH))
+
+;; Other VARS
+(setenv "GOPATH" "/home/dani/go/")
