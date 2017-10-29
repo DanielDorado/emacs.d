@@ -188,6 +188,7 @@
             (add-to-list 'ac-sources 'ac-source-rsense-method)
             (add-to-list 'ac-sources 'ac-source-rsense-constant)))
 
+
 ;;
 ;; Golang
 ;;
@@ -199,7 +200,7 @@
   ; Customize compile command to run go build
   (if (not (string-match "go" compile-command))
       (set (make-local-variable 'compile-command)
-           "go build -v && go test -v && go vet"))
+           "source ~/bin/search_main.sh && go build -v && go test -v && go vet"))
   ; Godef jump key binding
   ; Godef jump key binding                                                      
   (local-set-key (kbd "M-.") 'godef-jump)
@@ -280,4 +281,7 @@
 (when window-system (set-exec-path-from-shell-PATH))
 
 ;; Other VARS
-(setenv "GOPATH" "/home/dani/go/")
+;; golang GOPATH
+;; (setenv "GOPATH" "/home/dani/go/")
+(setenv "GOPATH" "/home/dani/src/paasdepl")
+
