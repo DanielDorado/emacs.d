@@ -6,12 +6,14 @@
 (when window-system
 ;;  (add-to-list 'default-frame-alist '(background-color . "black"))
 ;  (add-to-list 'default-frame-alist '(foreground-color . "wheat")))
-;;  (set-face-attribute 'default nil :font "Droid Sans Mono-12")
+;  (set-face-attribute 'default nil :font "Droid Sans Mono-12")
+;  (set-face-attribute 'default nil :font "Monospace-14")
 ;; (modify-frame-parameters nil '((wait-for-wm . nil))
 )
 
 ;; prevent silly initial splash screen
 (setq inhibit-splash-screen t)
+(setq inhibit-startup-screen t)
 
 (set-keyboard-coding-system 'utf-8)
 (set-language-environment 'utf-8)
@@ -35,7 +37,6 @@
 (require 'package)
 (add-to-list 'package-archives
   '("melpa" . "http://melpa.milkbox.net/packages/") t)
-(package-initialize)
 
 ;;
 ;; Below scripts gurantees all packages in package-list are installed when Emacs 
@@ -56,8 +57,21 @@
     yaml-mode
     nginx-mode
     go-mode
-    auto-complete
-    go-autocomplete)
+    helm
+    helm-ag
+    projectile
+    speedbar
+    sr-speedbar
+    projectile-speedbar
+    helm-projectile
+    go-projectile
+    ;;    auto-complete
+    ;;    go-autocomplete
+    go-dlv
+    company
+    company-go
+    company-jedi
+    go-guru)
 
   "List of packages needs to be installed at launch")
 (defun has-package-not-installed ()
@@ -77,13 +91,21 @@
 ;;
 ;; Auto complete
 ;;
-
-(require 'auto-complete-config)
+;; (require 'go-autocomplete)
+;; (require 'auto-complete)
+;; (require 'auto-complete-config)
 ;; (add-to-list 'ac-dictionary-directories "~/.emacs.d/elisp/ac-dict")
 ;; (setq ac-dictionary-files (list (concat user-emacs-directory ".dict")))
-(ac-config-default)
+;; (ac-config-default)
 
+;;
+;; speedbar
+;;
 
+(setq speedbar-mode-hook '(lambda ()
+			    (speedbar-add-supported-extension ".go")
+			    )
+      )
 ;;
 ;; PYTHON
 ;;
@@ -114,7 +136,7 @@
 (require 'flymake-python-pyflakes)
 (add-hook 'python-mode-hook 'flymake-python-pyflakes-load)
 ;; default is "pyflakes" "flake8" flake8 includes pyflakes and pep8
-(setq flymake-python-pyflakes-executable "flake8")
+(setq flymake-python-pyflakes-executable "/home/dani/src/pyreport/env/bin/flake8")
 ;; You can pass extra arguments to the checker program.
 (setq flymake-python-pyflakes-extra-arguments '("--ignore=W501"))
 
@@ -167,9 +189,9 @@
 ; TODO: Fix this
 ;    (add-hook 'emacs-lisp-mode-hook 'enable-paredit-mode)
 ;   (add-hook 'scheme-mode-hook     'enable-paredit-mode)
-(add-hook 'clojure-mode-hook    'paredit-mode)
-(add-hook 'slime-repl-mode-hook    'paredit-mode)
-(add-hook 'slime-repl-mode-hook 'clojure-mode-font-lock-setup)
+;(add-hook 'clojure-mode-hook    'paredit-mode)
+;(add-hook 'slime-repl-mode-hook    'paredit-mode)
+;(add-hook 'slime-repl-mode-hook 'clojure-mode-font-lock-setup)
 
 
 
@@ -177,21 +199,46 @@
 ;; Ruby
 ;;
 ;; cl is required by rsense
-(require 'cl)
+;(require 'cl)
 ;; RSense
-(setq rsense-home (expand-file-name "~/opt/rsense"))
-(require 'rsense)
+;(setq rsense-home (expand-file-name "~/opt/rsense"))
+;(require 'rsense)
  
 ;; Rsense + Autocomplete
-(add-hook 'ruby-mode-hook
-          (lambda ()
-            (add-to-list 'ac-sources 'ac-source-rsense-method)
-            (add-to-list 'ac-sources 'ac-source-rsense-constant)))
+;; (add-hook 'ruby-mode-hook
+;;           (lambda ()
+;;             (add-to-list 'ac-sources 'ac-source-rsense-method)
+;;             (add-to-list 'ac-sources 'ac-source-rsense-constant)))
 
+;;
+;; Projectile + Helm
+;;
+(projectile-global-mode)
+(setq projectile-completion-system 'helm)
+(helm-projectile-on)
+(projectile-mode +1)
+;; (define-key projectile-mode-map (kbd "s-p") 'projectile-command-map)
+(define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
+(global-set-key (kbd "M-x") 'helm-M-x)
+;;(global-set-key (kbd "M-<f2>") 'projectile-speedbar-open-current-buffer-in-tree)
+(setq projectile-speedbar-projectile-speedbar-enable nil)
 
 ;;
 ;; Golang
 ;;
+(require 'company)
+(require 'company-go)
+(require 'go-projectile)
+(require 'go-guru)
+(setq company-go-show-annotation t)                  ; show type for completions
+; (setq company-tooltip-align-annotations t)           ; align
+(setq company-tooltip-limit 20)                      ; bigger popup window
+(setq company-idle-delay .3)                         ; decrease delay before autocompletion popup shows
+(setq company-echo-delay 0)                          ; remove annoying blinking
+; (setq company-begin-commands '(self-insert-command)) ; start autocompletion only after typing
+(setq company-minimum-prefix-length 1) ; A char before autocomplete
+(setq company-go-begin-after-member-access t)
+
 (defun my-go-mode-hook ()
   ; Use goimports instead of go-fmt
   (setq gofmt-command "goimports")
@@ -200,20 +247,19 @@
   ; Customize compile command to run go build
   (if (not (string-match "go" compile-command))
       (set (make-local-variable 'compile-command)
-           "source ~/bin/search_main.sh && go build -v && go test -v && go vet"))
+           "source ~/bin/search_main.sh && go build"))
+	   ;; "go test"))
   ; Godef jump key binding
   ; Godef jump key binding                                                      
   (local-set-key (kbd "M-.") 'godef-jump)
   (local-set-key (kbd "M-,") 'pop-tag-mark)
-  (auto-complete-mode 1)
+  (set (make-local-variable 'company-backends) '(company-go))
+  (company-mode)
+  (go-guru-hl-identifier-mode)
   )
 
 (add-hook 'before-save-hook 'gofmt-before-save)
 (add-hook 'go-mode-hook 'my-go-mode-hook)
-
-;;(with-eval-after-load 'go-mode
-(require 'go-autocomplete)
-;;)
 
 ;;
 ;; Markdown
@@ -263,7 +309,6 @@
 
 ;; (setq-default indent-tabs-mode nil)
 
-
 ;;
 ;; PATH and environment variables
 ;;
@@ -282,6 +327,22 @@
 
 ;; Other VARS
 ;; golang GOPATH
-;; (setenv "GOPATH" "/home/dani/go/")
-(setenv "GOPATH" "/home/dani/src/paasdepl")
+(setenv "GOPATH" "/home/dani/go/")
+;; (setenv "GOPATH" "/home/dani/src/paasdepl")
+;; (setenv "GOPATH" "/home/dani/src/openregt.go")
+;; (setenv "GOPATH" "/home/dani/src/redisop")
+;; (setenv "GOPATH" "/home/dani/src/bamboo-cli")
 
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages
+   '(helm-ag company-jedi company-go company go-projectile go-mode nginx-mode yaml-mode markdown-mode zenburn-theme rsense pyvenv flymake-python-pyflakes jedi autopair paredit clojure-mode)))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
