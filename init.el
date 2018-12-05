@@ -35,6 +35,7 @@
 ;; I before used Marmelade but some guy said that Melpa is better.
 ;;
 (require 'package)
+(unless package--initialized (package-initialize t))
 (add-to-list 'package-archives
   '("melpa" . "http://melpa.milkbox.net/packages/") t)
 
