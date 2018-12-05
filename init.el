@@ -71,7 +71,9 @@
     company
     company-go
     company-jedi
-    go-guru)
+    go-guru
+    org
+    org-bullets)
 
   "List of packages needs to be installed at launch")
 (defun has-package-not-installed ()
@@ -332,6 +334,15 @@
 ;; (setenv "GOPATH" "/home/dani/src/openregt.go")
 ;; (setenv "GOPATH" "/home/dani/src/redisop")
 ;; (setenv "GOPATH" "/home/dani/src/bamboo-cli")
+
+
+					;
+;; org-mode
+(require 'org)
+(setq org-log-done 'time)
+(add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
+(setq org-todo-keywords
+      '((sequence "TODO" "IN-PROGRESS" "WAITING" "DONE")))
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
