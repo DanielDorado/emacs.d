@@ -9,6 +9,8 @@
 ;  (set-face-attribute 'default nil :font "Droid Sans Mono-12")
 ;  (set-face-attribute 'default nil :font "Monospace-14")
 ;; (modify-frame-parameters nil '((wait-for-wm . nil))
+;; (menu-bar-mode 0)
+  (tool-bar-mode 0)
 )
 
 ;; prevent silly initial splash screen
@@ -24,8 +26,6 @@
 ;; (set-cursor-color "grey80")
 
 
-;; (menu-bar-mode 0)
-(tool-bar-mode 0)
 
 (fset 'jsmessages
    (lambda (&optional arg) "Keyboard macro." (interactive "p") (kmacro-exec-ring-item (quote ([134217765 return 33 C-home 134217765 32 61 32 34 return 61 return 33 C-home 134217765 40 backspace 34 59 return return 33] 0 "%d")) arg)))
