@@ -225,7 +225,7 @@
 (global-set-key (kbd "M-x") 'helm-M-x)
 ;;(global-set-key (kbd "M-<f2>") 'projectile-speedbar-open-current-buffer-in-tree)
 (setq projectile-speedbar-projectile-speedbar-enable nil)
-
+(add-to-list 'projectile-globally-ignored-directories "vendor")
 ;;
 ;; Golang
 ;;
