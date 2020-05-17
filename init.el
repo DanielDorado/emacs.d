@@ -7,7 +7,6 @@
 ;;  (add-to-list 'default-frame-alist '(background-color . "black"))
 ;  (add-to-list 'default-frame-alist '(foreground-color . "wheat")))
 ;  (set-face-attribute 'default nil :font "Droid Sans Mono-12")
-;  (set-face-attribute 'default nil :font "Monospace-14")
 ;; (modify-frame-parameters nil '((wait-for-wm . nil))
 ;; (menu-bar-mode 0)
   (tool-bar-mode 0)
@@ -74,7 +73,9 @@
     company-jedi
     go-guru
     org
-    org-bullets)
+    org-bullets
+    ox-jira
+    htmlize)
 
   "List of packages needs to be installed at launch")
 (defun has-package-not-installed ()
@@ -118,7 +119,8 @@
 ;; (elpy-enable)
 ;;
 ;; (setenv "PYTHONPATH" "/var/opt/spark-2.0.0-bin-hadoop2.7/python/lib/py4j-0.10.1-src.zip:/var/opt/spark-2.0.0-bin-hadoop2.7/python/lib/pyspark.zip")
-(setenv "PYTHONPATH" "/var/opt/spark-2.0.0-bin-hadoop2.7/python/lib")
+;; (setenv "PYTHONPATH" "/var/opt/spark-2.0.0-bin-hadoop2.7/python/lib")
+(setenv "PYTHONPATH" "/home/dani/src/bluegreen")
 ;; Standard Jedi.el setting
 ;; (add-hook 'python-mode-hook 'autopair-mode)
 (add-hook 'python-mode-hook 'jedi:setup)
@@ -141,7 +143,7 @@
 ;; default is "pyflakes" "flake8" flake8 includes pyflakes and pep8
 (setq flymake-python-pyflakes-executable "/home/dani/src/pyreport/env/bin/flake8")
 ;; You can pass extra arguments to the checker program.
-(setq flymake-python-pyflakes-extra-arguments '("--ignore=W501"))
+(setq flymake-python-pyflakes-extra-arguments '("--ignore=E501"))
 
 (add-hook 'python-mode-hook
               (lambda ()
@@ -342,19 +344,22 @@
 (require 'org)
 (setq org-log-done 'time)
 (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
-(setq org-todo-keywords
-      '((sequence "TODO" "IN-PROGRESS" "WAITING" "DONE")))
+; (setq org-todo-keywords
+;      '((sequence "TODO" "IN-PROGRESS" "WAITING" "DONE")))
+(require 'ox-jira)
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(org-export-backends '(ascii html icalendar latex md))
  '(package-selected-packages
-   '(helm-ag company-jedi company-go company go-projectile go-mode nginx-mode yaml-mode markdown-mode zenburn-theme rsense pyvenv flymake-python-pyflakes jedi autopair paredit clojure-mode)))
+   '(## helm-ag company-jedi company-go company go-projectile go-mode nginx-mode yaml-mode markdown-mode zenburn-theme rsense pyvenv flymake-python-pyflakes jedi autopair paredit clojure-mode)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  )
+(put 'set-goal-column 'disabled nil)
