@@ -18,7 +18,7 @@ On Linux: Clone this repository to: `~/.emacs.d`
 
 ** Org Mode
 
-| *edit source code:* =C-' =  | *templates:* =C-c C-, = |
+| *edit source code:* =C-'= | *templates:* =C-c C-,= |
 
 ** My keybindings
 
