@@ -1,0 +1,29 @@
+* Intro
+
+This is my configuration for emacs.
+
+* Installation
+
+On Linux: Clone this repository to: `~/.emacs.d`
+
+* Cheat Sheet
+
+** Default Keys
+
+| *Go to line* =M-G M-G= | *menu-bar-open:* =[f10]= |
+
+** Programming
+
+| *smerge prefix* =C-c v= |
+
+** Org Mode
+
+| =C-'= edit embedded source code. | - =C-c C-,= templates |
+
+** My keybindings
+
+| *recompile* =[f5]= |
+
+* Emacs Version
+
+This is tested with Emacs 27.1.

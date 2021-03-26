@@ -1,0 +1,448 @@
+* Introduction
+
+This is my personal emacs configuration, I copy the org literate configuration idea from
+Yay-Evil distro by Ian Y.E. Pan.
+
+* Settings without corresponding packages
+
+- =dani/indent-width= indent width value. Using in multiple languages.
+
+
+#+BEGIN_SRC emacs-lisp
+  (use-package emacs
+    :preface
+    (defvar dani/indent-width 4) ; change this value to your preferred width
+    :config
+    (tool-bar-mode -1)
+    (menu-bar-mode -1)  ;; Use [f10] to access menu-bar
+          (setq vc-ignore-dir-regexp
+                (format "\\(%s\\)\\|\\(%s\\)"
+                        vc-ignore-dir-regexp
+                        tramp-file-name-regexp))
+    ;; Split vertically:
+    ;; (setq-default split-height-threshold 1000)  ;; I coment because it split horizontally helm windows (and )lso
+    ;;
+    (setq-default indent-tabs-mode nil) ;; Always use spaces for indentation
+    (setq ab-width dani/indent-width)
+    (put 'upcase-region 'disabled nil) ;; enable upcase-region
+    (setq smerge-command-prefix "\C-cv") ;; smerge prefix change: C-c ^ --> C-c v
+    (global-set-key [f5] 'recompile)
+    ;; ENVIRONMENT VARIABLES
+    ;; (setenv "PYTHONPATH" "/home/dani/src/cm")
+    )
+#+END_SRC
+
+* Configuration for built-in packages
+
+** Omit default startup screen
+
+#+BEGIN_SRC emacs-lisp
+(use-package "startup"
+  :ensure nil
+  :config (setq inhibit-startup-screen t))
+#+END_SRC
+
+** Enable column numbers
+
+#+BEGIN_SRC emacs-lisp
+  (use-package simple
+    :ensure nil
+    :config (column-number-mode +1))
+#+END_SRC
+
+** File-related tweaks
+
+Don't bother confirming killing processes and don't let backup~ files
+scatter around.
+#+BEGIN_SRC emacs-lisp
+  (use-package files
+    :ensure nil
+    :config
+    (setq confirm-kill-processes nil
+          create-lockfiles nil ; don't create .# files (crashes 'npm start')
+          make-backup-files nil))
+#+END_SRC
+** Automatically refreshes the buffer for changes outside of Emacs
+   Auto refreshes every 2 seconds. Don't forget to refresh the version
+control status as well.
+#+BEGIN_SRC emacs-lisp
+  (use-package autorevert
+    :ensure nil
+    :config
+    (global-auto-revert-mode +1)
+    (setq auto-revert-interval 2
+          auto-revert-check-vc-info t
+          global-auto-revert-non-file-buffers t
+          auto-revert-verbose nil))
+#+END_SRC
+
+** Eldoc: documentation in the mini-buffer
+Slightly shorten eldoc display delay.
+#+BEGIN_SRC emacs-lisp
+  (use-package eldoc
+    :ensure nil
+    :diminish eldoc-mode
+    :config
+    (setq eldoc-idle-delay 0.4))
+#+END_SRC
+
+** Indentation improvement
+For Java and C/C++, change the formatting style from GNU (the default)
+to the more standard K&R. Here we also set the indentation width of C,
+C++, Java, and Python to the preferred value defined in
+~ian/indent-width~ (all languages default to 4, except JavaScript,
+which is 2, as controlled in ~web-mode~). Of course, you can change
+the value depending on the language as well.
+#+BEGIN_SRC emacs-lisp
+  ;; C, C++, and Java
+  (use-package cc-vars
+    :ensure nil
+    :config
+    (setq-default c-basic-offset dani/indent-width)
+    (setq c-default-style '((java-mode . "java")
+                            (awk-mode . "awk")
+                            (other . "k&r"))))
+
+  ;; Python (both v2 and v3)
+  (use-package python
+    :ensure nil
+    :config (setq python-indent-offset dani/indent-width))
+#+END_SRC
+
+** Show matching parentheses
+
+Reduce the highlight delay to instantly.
+#+BEGIN_SRC emacs-lisp
+  (use-package paren
+    :ensure nil
+    :init (setq show-paren-delay 0)
+    :config (show-paren-mode +1))
+#+END_SRC
+
+** Setting up some frame defaults
+
+Maximise the frame by default on start-up. Set the font to size 12.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package frame
+    :ensure nil
+    :config
+    (setq initial-frame-alist '((fullscreen . maximized)))
+    (set-face-font 'default "Hack-11")
+    )
+#+END_SRC
+
+** Auto-pairing quotes and parentheses etc.
+
+Electric-pair-mode has improved quite a bit in recent Emacs
+versions. No longer need an extra package for this. It also takes care
+of the new-line-and-push-brace feature.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package elec-pair
+    :ensure nil
+    :hook (prog-mode . electric-pair-mode))
+#+END_SRC
+
+** Clean up whitespace on save
+
+#+BEGIN_SRC emacs-lisp
+(use-package whitespace
+    :ensure nil
+    :hook (before-save . whitespace-cleanup)
+    ;; :config (add-hook 'before-save-hook 'whitespace-cleanup)
+)
+#+END_SRC
+)
+** Dump custom-set-variables to a garbage file and don't load it
+
+#+BEGIN_SRC emacs-lisp
+  (use-package cus-edit
+    :ensure nil
+    :config
+    (setq custom-file (concat user-emacs-directory "to-be-dumped.el")))
+#+END_SRC
+
+* Third-party packages
+
+Normally, we need to add ~:ensure t~ to tell ~use-package~ to download packages when it's
+ not available. But since we've added ~use-package-always-ensure~ in ~init.el~, we can
+ omit it.
+
+** GUI enhancements
+*** ORG mode bullets
+
+#+BEGIN_SRC emacs-lisp
+
+(use-package org-bullets
+:ensure t
+:config (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
+)
+
+#+END_SRC
+
+*** THEME
+#+BEGIN_SRC emacs-lisp
+(use-package zenburn-theme
+  :ensure t
+  :config
+  (load-theme 'zenburn t))
+#+END_SRC
+
+** Git Integration
+
+#+BEGIN_SRC emacs-lisp
+(use-package magit
+  :bind ("C-x g" . magit-status))
+#+END_SRC
+
+** Searching/sorting enhancements & project management
+
+Exploring large projects with Projectile and Helm
+
+#+BEGIN_SRC emacs-lisp
+  (use-package projectile
+    :ensure t
+    :config (progn
+              (projectile-global-mode)
+              (setq projectile-completion-system 'helm)
+              (projectile-mode +1)
+              (global-set-key (kbd "M-<f2>") 'projectile-speedbar-open-current-buffer-in-tree)
+              ;; (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
+              ;; (add-to-list 'projectile-globally-ignored-directories "vendor")
+              ))
+
+  (use-package projectile-speedbar
+    :ensure t
+    )
+
+  (use-package helm
+    :config (progn
+                (global-set-key (kbd "M-x") 'helm-M-x)
+                (global-set-key (kbd "C-x b") 'helm-mini)
+                )
+    :ensure t
+    )
+
+  (use-package helm-projectile
+    :ensure t
+    )
+#+END_SRC
+
+* Markup Languages
+
+** yaml
+
+
+#+begin_src emacs-lisp
+(use-package yaml-mode
+  :ensure t
+)
+#+end_src
+
+* Programming Languages
+** Language Server Protocol
+#+BEGIN_SRC emacs-lisp
+
+(use-package lsp-mode
+:ensure t
+;; uncomment to enable gopls http debug server
+;; :custom (lsp-gopls-server-args '("-debug" "127.0.0.1:0"))
+:commands (lsp lsp-deferred)
+:config (progn
+(setq lsp-auto-guess-root t)
+;; use flycheck, not flymake
+(setq lsp-prefer-flymake nil))
+:hook ((gdscript-mode . lsp-deferred)
+  (go-mode . lsp-deferred)
+  (c-mode . lsp-deferred)
+  (web-mode . lsp-deferred)
+  (js-mode . lsp-deferred)
+  (python-mode . lsp-deferred)
+  (ruby-mode . lsp-deferred)
+  (sh-mode . lsp-deferred)))
+
+(use-package lsp-ui
+:ensure t
+:commands lsp-ui-mode
+:config (progn
+(setq lsp-ui-doc-enable t
+      lsp-ui-peek-enable t
+      lsp-ui-sideline-enable t
+      lsp-ui-imenu-enable t
+      lsp-ui-flycheck-enable t)))
+
+#+END_SRC
+
+** Company for auto-completion
+
+Company mode is a standard completion package that works well with lsp-mode.
+
+Use =C-n= and =C-p= to navigate the tooltip.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package company
+    :ensure t
+    :config
+    ;; Optionally enable completion-as-you-type behavior.
+    (setq company-idle-delay 0.2)
+    ; (setq company-minimum-prefix-length 1)
+)
+#+END_SRC
+
+** Flycheck
+
+A modern on-the-fly syntax checking extension – absolute essential
+
+#+BEGIN_SRC emacs-lisp
+(use-package flycheck
+:ensure t
+)
+#+END_SRC
+
+** Golang
+
+#+BEGIN_SRC emacs-lisp
+(use-package go-mode
+  ;; hook does not work
+  :hook (before-save . gofmt-before-save)
+  :config (progn
+  (setq gofmt-command "goimports") ;; format and add/delete imports
+  ;; Call Gofmt before saving
+  ;; (add-hook 'before-save-hook 'gofmt-before-save)
+  (if (not (string-match "go" compile-command))
+      (set (make-local-variable 'compile-command)
+           "source ~/bin/search_main.sh && make"))
+))
+#+END_SRC
+
+
+What I want:
+
+*** TODO automatically go.mod
+
+*** DONE Coulored Highlighted Syntax
+
+- go-mode
+
+*** DONE Add imports
+
+- Save hook with goimports.
+
+*** DONE Formating when saving
+
+- save hook with goimports.
+
+*** DONE Code Navegation
+
+Jump to functions and return.
+
+- M-. go to.
+- M-, return.
+- M-? Show references.
+
+Provided by:
+
+- go-pls
+
+*** DONE Suggestions and Autocomplete
+
+Provided by:
+
+- go-pls
+- company
+
+*** TODO Launch tests
+
+- Makefile and compile and recompile (=[f5]=)
+- =projectile-test-project=
+
+*** TODO Debug
+
+Or use external tool.
+
+
+*** TODO Snnipets
+
+explore yasnippet. What is org default?
+
+- if err ...
+- func ...
+
+#+begin_src emacs-lisp
+  (use-package yasnippet-snippets
+    :ensure t)
+  (use-package yasnippet
+    :ensure t
+    :config (yas-global-mode 1))
+#+end_src
+
+** Python
+
+#+BEGIN_SRC emacs-lisp
+  (use-package lsp-pyright
+    :ensure t
+;;    :config  (progn
+;; use flycheck, not flymake
+;;(setq lsp-pyright-auto-search-paths nil)
+;;(setq lsp-pyright-multi-root nil)
+;;)
+)
+
+#+END_SRC
+
+*** TODO automatically venv or env
+*** DONE Coulored Highlighted Syntax
+    CLOSED: [2021-03-19 Fri 07:52]
+*** TODO Formating when saving
+*** TODO Code Navegation
+*** TODO Suggestions and Autocomplete
+*** TODO Launch tests
+*** TODO Debug
+*** TODO Snnipets
+
+* TODO Refactoring
+
+Maybe with external tools...
+
+- Safe Delete
+- Extract Method
+- Extract Constant
+- Extract Field
+- Extract Parameter
+- Introduce Variable
+- Rename
+- Inline
+- Change signature
+
+*
+* Miscellaneous
+
+** Which-key
+
+#+BEGIN_SRC emacs-lisp
+(use-package which-key
+  :diminish which-key-mode
+  :config
+  (which-key-mode +1)
+  (setq which-key-idle-delay 0.4
+        which-key-idle-secondary-delay 0.4))
+#+END_SRC
+* My emacs-lisp functions
+
+#+BEGIN_SRC emacs-lisp
+;; load from .init.el with (load "dani")
+(defun remote (host)
+  (interactive "sHost: ")
+  (if (string-prefix-p "axinbambo" host)
+      (setq user "tomcat")
+    (setq user "deployer")
+    )
+  (find-file (concat "/ssh:admdanieladf@" host "|sudo:" user "@" host ":."))
+  )
+#+END_SRC
+* TODO References
+
+Explore the Automatic, Idempotent Setup:
+
+- https://hristos.co/blog/my-custom-emacs-setup/
