@@ -128,7 +128,7 @@ Maximise the frame by default on start-up. Set the font to size 12.
     :ensure nil
     :config
     (setq initial-frame-alist '((fullscreen . maximized)))
-    (set-face-font 'default "Hack-11")
+    (set-face-font 'default "Hack-10")
     )
 #+END_SRC
 
@@ -228,6 +228,19 @@ Exploring large projects with Projectile and Helm
     :ensure t
     )
 #+END_SRC
+
+* Terminal
+
+Bash with autocompletion.
+
+#+begin_src emacs-lisp
+(use-package bash-completion
+    :ensure t
+    :config (progn
+                (bash-completion-setup))
+)
+#+end_src
+
 
 * Markup Languages
 

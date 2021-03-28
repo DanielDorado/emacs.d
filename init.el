@@ -28,6 +28,12 @@
 
 ;; Load main config file "config.org"
 (require 'org)
+(windmove-default-keybindings) ;; move between windows with the 【Shift+→】/ 【Shift+←】/ 【Shift+↓】 / 【Shift+
+;; Make windmove work in Org mode:
+(add-hook 'org-shiftup-final-hook 'windmove-up)
+(add-hook 'org-shiftleft-final-hook 'windmove-left)
+(add-hook 'org-shiftdown-final-hook 'windmove-down)
+(add-hook 'org-shiftright-final-hook 'windmove-right)
 (setq org-log-done 'time)
 (org-babel-do-load-languages
  'org-babel-load-languages
