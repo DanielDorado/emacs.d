@@ -24,6 +24,36 @@ On Linux: Clone this repository to: `~/.emacs.d`
 
 | *recompile* =[f5]= |
 
+** Byobu Emacs Keybindings
+
+| *Move split windows:* =S-<arrow>=         | *Split H/V:* =C-x 2 or 3=   |
+| *Create, Move windows:* =F2 or M-<arrow>= | *Zoom In, Zoom Out* =S-F11= |
+
+Create a new session:
+
+#+begin_src sh
+byobu new -s $SESSION_NAME
+#+end_src
+
+Attach to a existing session:
+
+#+begin_src sh
+byobu
+#+end_src
+
+Configuration:
+
+#+begin_src sh
+# ~/.byobu/keybindigs.tmux
+set -g prefix C-x
+unbind-key -n C-a
+#+end_src
+
+# split panes using 3 and 2
+bind 3 split-window -h
+bind 2 split-window -v
+
+
 * Emacs Version
 
 This is tested with Emacs 27.1.
