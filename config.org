@@ -26,6 +26,7 @@ Yay-Evil distro by Ian Y.E. Pan.
     (setq ab-width dani/indent-width)
     (put 'upcase-region 'disabled nil) ;; enable upcase-region
     (setq smerge-command-prefix "\C-cv") ;; smerge prefix change: C-c ^ --> C-c v
+    ;; (setq tramp-histfile-override nil) ;; disable the tramp history and use the default
     (global-set-key [f5] 'recompile)
     ;; ENVIRONMENT VARIABLES
     ;; (setenv "PYTHONPATH" "/home/dani/src/cm")
@@ -241,6 +242,16 @@ Bash with autocompletion.
 )
 #+end_src
 
+* Data languages
+
+#+begin_src emacs-lisp
+(use-package csv-mode
+  :mode ("\\.csv\\'" . csv-mode)
+  ;; With big files, disable sintax
+  ;; :init (add-hook 'csv-mode-hook (lambda () (font-lock-mode -1)))
+  :ensure t)
+#+end_src
+
 
 * Markup Languages
 
@@ -265,7 +276,8 @@ Bash with autocompletion.
 :config (progn
 (setq lsp-auto-guess-root t)
 ;; use flycheck, not flymake
-(setq lsp-prefer-flymake nil))
+(setq lsp-prefer-flymake nil)
+(setq lsp-enable-file-watchers nil))
 :hook ((gdscript-mode . lsp-deferred)
   (go-mode . lsp-deferred)
   (c-mode . lsp-deferred)
