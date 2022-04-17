@@ -37,8 +37,6 @@ Yay-Evil distro by Ian Y.E. Pan.
     )
 #+END_SRC
 
-#+RESULTS:
-: t
 
 * Configuration for built-in packages
 
@@ -310,9 +308,6 @@ I need Keytar to log in.
                        (require 'lsp-grammarly)
                        (lsp))))  ; or lsp-deferred
 #+end_src
-
-#+RESULTS:
-| (lambda nil (require 'lsp-grammarly) (lsp)) | text-mode-hook-identify |
 
 * ORG Mode
 
