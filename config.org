@@ -23,15 +23,20 @@ Yay-Evil distro by Ian Y.E. Pan.
     ;; (setq-default split-height-threshold 1000)  ;; I coment because it split horizontally helm windows (and )lso
     ;;
     (setq-default indent-tabs-mode nil) ;; Always use spaces for indentation
+    (setq-default fill-column 100)  ;; The fill width when justify paragraphs with M-q
     (setq ab-width dani/indent-width)
     (put 'upcase-region 'disabled nil) ;; enable upcase-region
     (setq smerge-command-prefix "\C-cv") ;; smerge prefix change: C-c ^ --> C-c v
     ;; (setq tramp-histfile-override nil) ;; disable the tramp history and use the default
     (global-set-key [f5] 'recompile)
+    (global-set-key (kbd "C-+") 'text-scale-increase)
+    (global-set-key (kbd "C--") 'text-scale-decrease)
+    (global-set-key (kbd "C-c a") 'org-agenda)
     ;; ENVIRONMENT VARIABLES
     ;; (setenv "PYTHONPATH" "/home/dani/src/cm")
     )
 #+END_SRC
+
 
 * Configuration for built-in packages
 
@@ -129,7 +134,11 @@ Maximise the frame by default on start-up. Set the font to size 12.
     :ensure nil
     :config
     (setq initial-frame-alist '((fullscreen . maximized)))
-    (set-face-font 'default "Hack-10")
+    ;; if maximise is too much with 4k
+    ;; (add-to-list 'default-frame-alist '(width  . 170))
+    ;; (add-to-list 'default-frame-alist '(height . 120))
+    ;; (set-face-font 'default "Hack-10")
+    (set-face-font 'default "Hack-12")
     )
 #+END_SRC
 
@@ -139,10 +148,12 @@ Electric-pair-mode has improved quite a bit in recent Emacs
 versions. No longer need an extra package for this. It also takes care
 of the new-line-and-push-brace feature.
 
+I comment it because I don't like:
+
 #+BEGIN_SRC emacs-lisp
-  (use-package elec-pair
-    :ensure nil
-    :hook (prog-mode . electric-pair-mode))
+  ;; (use-package elec-pair
+  ;;   :ensure nil
+  ;;   :hook (prog-mode . electric-pair-mode))
 #+END_SRC
 
 ** Clean up whitespace on save
@@ -171,7 +182,7 @@ Normally, we need to add ~:ensure t~ to tell ~use-package~ to download packages 
  omit it.
 
 ** GUI enhancements
-*** ORG mode bullets
+*** ORG Bullets:
 
 #+BEGIN_SRC emacs-lisp
 
@@ -179,7 +190,6 @@ Normally, we need to add ~:ensure t~ to tell ~use-package~ to download packages 
 :ensure t
 :config (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
 )
-
 #+END_SRC
 
 *** THEME
@@ -195,6 +205,15 @@ Normally, we need to add ~:ensure t~ to tell ~use-package~ to download packages 
 #+BEGIN_SRC emacs-lisp
 (use-package magit
   :bind ("C-x g" . magit-status))
+#+END_SRC
+
+Forge to work with github, gitlab...
+
+#+BEGIN_SRC emacs-lisp
+(setq auth-sources '("~/.authinfo"))
+
+(use-package forge
+  :after magit)
 #+END_SRC
 
 ** Searching/sorting enhancements & project management
@@ -264,6 +283,63 @@ Bash with autocompletion.
 )
 #+end_src
 
+** AsciiDoc
+
+#+begin_src emacs-lisp
+(use-package adoc-mode
+  :mode ("\\.adoc\\'" . adoc-mode)
+  :ensure t
+)
+#+end_src
+
+
+* Grammarly
+
+I need Keytar to log in.
+
+#+begin_src emacs-lisp
+(use-package keytar
+  :ensure t
+)
+
+(use-package lsp-grammarly
+  :ensure t
+  :hook (text-mode . (lambda ()
+                       (require 'lsp-grammarly)
+                       (lsp))))  ; or lsp-deferred
+#+end_src
+
+* ORG Mode
+
+Tangle after save, to have a file with the language to use it to edit with LSP.
+
+#+begin_src emacs-lisp
+(add-hook 'org-mode-hook
+          (lambda ()
+            (add-hook 'after-save-hook 'org-babel-tangle nil 'make-it-local)))
+#+end_src
+
+Indentation:
+
+#+begin_src emacs-lisp
+(setq org-src-preserve-indentation t)
+(setq org-edit-src-content 0)
+#+end_src
+
+Load languages:
+
+#+begin_src emacs-lisp
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+     '((python . t)))
+#+end_src
+
+Files to search to put events in the org-agenda. You can put files or a directory:
+
+#+begin_src emacs-lisp
+(setq org-agenda-files (list "~/org/work.org"))
+#+end_src
+
 * Programming Languages
 ** Language Server Protocol
 #+BEGIN_SRC emacs-lisp
@@ -274,10 +350,13 @@ Bash with autocompletion.
 ;; :custom (lsp-gopls-server-args '("-debug" "127.0.0.1:0"))
 :commands (lsp lsp-deferred)
 :config (progn
+(setq lsp-keymap-prefix "C-c l")
 (setq lsp-auto-guess-root t)
 ;; use flycheck, not flymake
 (setq lsp-prefer-flymake nil)
-(setq lsp-enable-file-watchers nil))
+(setq lsp-enable-file-watchers nil)
+(define-key lsp-mode-map (kbd "C-c l") lsp-command-map))
+;; (define-key lsp-mode-map (kbd "C-c l") lsp-command-map)
 :hook ((gdscript-mode . lsp-deferred)
   (go-mode . lsp-deferred)
   (c-mode . lsp-deferred)
@@ -296,7 +375,6 @@ Bash with autocompletion.
       lsp-ui-sideline-enable t
       lsp-ui-imenu-enable t
       lsp-ui-flycheck-enable t)))
-
 #+END_SRC
 
 ** Company for auto-completion
@@ -338,9 +416,11 @@ A modern on-the-fly syntax checking extension – absolute essential
   (if (not (string-match "go" compile-command))
       (set (make-local-variable 'compile-command)
            "source ~/bin/search_main.sh && make"))
-))
+  )
+  (require 'dap-go)
+  (dap-go-setup)
+  )
 #+END_SRC
-
 
 What I want:
 
@@ -386,8 +466,35 @@ Provided by:
 
 Or use external tool.
 
+#+begin_src emacs-lisp
+(use-package dap-mode
+  :ensure t
 
-*** TODO Snnipets
+  ;; Uncomment the config below if you want all UI panes to be hidden by default!
+  ;; :custom
+  ;; (lsp-enable-dap-auto-configure nil)
+  ;; :config
+  ;; (dap-ui-mode 1)
+  :commands dap-debug
+  :config
+  ;; Set up Node debugging
+  ;; (require 'dap-node)
+  ;;  (dap-node-setup) ;; Automatically installs Node debug adapter if needed
+  (require 'dap-hydra)
+  ;; (require 'dap-gdb-lldb)
+  ;; (dap-gdb-lldb-setup)
+  ;; Automatically trigger the hydra when the program hits a breakpoint by using the following code.
+  (add-hook 'dap-stopped-hook
+            (lambda (arg) (call-interactively #'dap-hydra)))
+  ;; Bind `C-c l d` to `dap-hydra` for easy access
+  ;; (general-define-key
+  ;;   :keymaps 'lsp-mode-map
+  ;;   :prefix lsp-keymap-prefix
+  ;;   "d" '(dap-hydra t :wk "debugger"))
+  )
+#+end_src
+
+*** TODO Snippets
 
 explore yasnippet. What is org default?
 
@@ -413,7 +520,6 @@ explore yasnippet. What is org default?
 ;;(setq lsp-pyright-multi-root nil)
 ;;)
 )
-
 #+END_SRC
 
 *** TODO automatically venv or env
@@ -425,6 +531,14 @@ explore yasnippet. What is org default?
 *** TODO Launch tests
 *** TODO Debug
 *** TODO Snnipets
+
+** Rego
+
+#+BEGIN_SRC emacs-lisp
+(use-package rego-mode
+  :ensure t
+)
+#+END_SRC
 
 * TODO Refactoring
 
@@ -453,6 +567,15 @@ Maybe with external tools...
   (setq which-key-idle-delay 0.4
         which-key-idle-secondary-delay 0.4))
 #+END_SRC
+
+** RestClient
+
+#+BEGIN_SRC emacs-lisp
+(use-package restclient
+  )
+#+END_SRC
+
+
 * My emacs-lisp functions
 
 #+BEGIN_SRC emacs-lisp

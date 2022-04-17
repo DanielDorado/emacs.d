@@ -34,13 +34,16 @@
 (add-hook 'org-shiftleft-final-hook 'windmove-left)
 (add-hook 'org-shiftdown-final-hook 'windmove-down)
 (add-hook 'org-shiftright-final-hook 'windmove-right)
+
 (setq org-log-done 'time)
 (org-babel-do-load-languages
  'org-babel-load-languages
  '((shell . t)
    ))
+(setq org-adapt-indentation nil)
 (setq org-confirm-babel-evaluate nil)
 (org-babel-load-file (expand-file-name (concat user-emacs-directory "config.org")))
 
 (provide 'init)
 ;;; init.el ends here
+(put 'downcase-region 'disabled nil)
