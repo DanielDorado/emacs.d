@@ -25,8 +25,11 @@ Yay-Evil distro by Ian Y.E. Pan.
     (setq-default indent-tabs-mode nil) ;; Always use spaces for indentation
     (setq-default fill-column 100)  ;; The fill width when justify paragraphs with M-q
     (setq ab-width dani/indent-width)
+    (setq shell-command-switch "-ic") ;; Adds the -i to the -c default mode to allow aliases
     (put 'upcase-region 'disabled nil) ;; enable upcase-region
-    (setq smerge-command-prefix "\C-cv") ;; smerge prefix change: C-c ^ --> C-c v
+    (setq smerge-command-prefix "\C-cv") ;; smerge prefix change: C-c ^ -- C-c v
+    (setq speedbar-show-unknown-files t) ;; show al files in speedbar
+    (setq tab-width dani/indent-width) ;; Tab width
     ;; (setq tramp-histfile-override nil) ;; disable the tramp history and use the default
     (global-set-key [f5] 'recompile)
     (global-set-key (kbd "C-+") 'text-scale-increase)
@@ -34,6 +37,11 @@ Yay-Evil distro by Ian Y.E. Pan.
     (global-set-key (kbd "C-c a") 'org-agenda)
     ;; ENVIRONMENT VARIABLES
     ;; (setenv "PYTHONPATH" "/home/dani/src/cm")
+    ;; LOAD PATH
+    (add-to-list 'load-path "~/.emacs.d/lisp/")
+    (custom-set-variables
+     '(warning-suppress-log-types '((lsp-mode) (lsp-mode) (lsp-mode)))
+     '(warning-suppress-types '((lsp-mode) (lsp-mode))))
     )
 #+END_SRC
 
@@ -51,9 +59,9 @@ Yay-Evil distro by Ian Y.E. Pan.
 ** Enable column numbers
 
 #+BEGIN_SRC emacs-lisp
-  (use-package simple
-    :ensure nil
-    :config (column-number-mode +1))
+  ;; (use-package simple
+  ;;   :ensure nil
+  ;;   :config (column-number-mode +1))
 #+END_SRC
 
 ** File-related tweaks
@@ -112,7 +120,11 @@ the value depending on the language as well.
   ;; Python (both v2 and v3)
   (use-package python
     :ensure nil
-    :config (setq python-indent-offset dani/indent-width))
+    :config
+    (setq python-indent-offset dani/indent-width)
+    (setq python-shell-interpreter "ipython")
+    (setq python-shell-interpreter-args "--simple-prompt")
+    )
 #+END_SRC
 
 ** Show matching parentheses
@@ -133,12 +145,11 @@ Maximise the frame by default on start-up. Set the font to size 12.
   (use-package frame
     :ensure nil
     :config
-    (setq initial-frame-alist '((fullscreen . maximized)))
+    ;; (setq initial-frame-alist '((fullscreen . maximized)))
     ;; if maximise is too much with 4k
-    ;; (add-to-list 'default-frame-alist '(width  . 170))
-    ;; (add-to-list 'default-frame-alist '(height . 120))
-    ;; (set-face-font 'default "Hack-10")
-    (set-face-font 'default "Hack-12")
+    (add-to-list 'default-frame-alist '(width  . 170))
+    (add-to-list 'default-frame-alist '(height . 120))
+    (set-face-font 'default "Hack-11")
     )
 #+END_SRC
 
@@ -174,6 +185,16 @@ I comment it because I don't like:
     :config
     (setq custom-file (concat user-emacs-directory "to-be-dumped.el")))
 #+END_SRC
+
+** Compile buffer with color
+
+(use-package ansi-color
+  :config
+  (defun my-colorize-compilation-buffer ()
+    (when (eq major-mode 'compilation-mode)
+      (ansi-color-apply-on-region compilation-filter-start (point-max))))
+  :hook (compilation-filter . my-colorize-compilation-buffer))
+
 
 * Third-party packages
 
@@ -232,19 +253,12 @@ Exploring large projects with Projectile and Helm
               ;; (add-to-list 'projectile-globally-ignored-directories "vendor")
               ))
 
-  (use-package projectile-speedbar
-    :ensure t
-    )
 
   (use-package helm
     :config (progn
                 (global-set-key (kbd "M-x") 'helm-M-x)
                 (global-set-key (kbd "C-x b") 'helm-mini)
                 )
-    :ensure t
-    )
-
-  (use-package helm-projectile
     :ensure t
     )
 #+END_SRC
@@ -304,9 +318,16 @@ I need Keytar to log in.
 
 (use-package lsp-grammarly
   :ensure t
-  :hook (text-mode . (lambda ()
+  :hook (org-mode . (lambda ()
+                      (require 'lsp-grammarly)
+                      (lsp-deferred)))  ; lsp or lsp-deferred
+  :hook (markdown-mode . (lambda ()
+                           (require 'lsp-grammarly)
+                           (lsp-deferred)))  ; lsp or lsp-deferred
+  :hook (adoc-mode . (lambda ()
                        (require 'lsp-grammarly)
-                       (lsp))))  ; or lsp-deferred
+                       (lsp))) ; lsp or lsp-deferred
+  )
 #+end_src
 
 * ORG Mode
@@ -319,19 +340,39 @@ Tangle after save, to have a file with the language to use it to edit with LSP.
             (add-hook 'after-save-hook 'org-babel-tangle nil 'make-it-local)))
 #+end_src
 
+Setting task states:
+
+#+begin_src emacs-lisp
+(setq org-todo-keywords
+      '((sequence "TODO" "DOING" "BLOCK" "|" "DONE")))
+#+end_src
+
 Indentation:
 
 #+begin_src emacs-lisp
 (setq org-src-preserve-indentation t)
 (setq org-edit-src-content 0)
+(setq ob-mermaid-cli-path "/home/dani/opt/npm/node_modules/.bin/mmdc")
 #+end_src
 
 Load languages:
 
 #+begin_src emacs-lisp
+(use-package mermaid-mode
+  :ensure t
+  )
+
+(use-package ob-mermaid
+  :ensure t
+  )
+
+
   (org-babel-do-load-languages
    'org-babel-load-languages
-     '((python . t)))
+     '(
+       (mermaid . t)
+       (python . t)
+       ))
 #+end_src
 
 Files to search to put events in the org-agenda. You can put files or a directory:
@@ -406,19 +447,17 @@ A modern on-the-fly syntax checking extension – absolute essential
 ** Golang
 
 #+BEGIN_SRC emacs-lisp
+(add-hook 'go-mode-hook (lambda () (setq tab-width dani/indent-width)))
 (use-package go-mode
   ;; hook does not work
   :hook (before-save . gofmt-before-save)
   :config (progn
-  (setq gofmt-command "goimports") ;; format and add/delete imports
-  ;; Call Gofmt before saving
-  ;; (add-hook 'before-save-hook 'gofmt-before-save)
-  (if (not (string-match "go" compile-command))
-      (set (make-local-variable 'compile-command)
-           "source ~/bin/search_main.sh && make"))
-  )
-  (require 'dap-go)
-  (dap-go-setup)
+
+            (setq gofmt-command "goimports") ;; format and add/delete imports
+            (add-hook 'go-mode-hook 'hs-minor-mode) ;; minor mode
+            (remove-hook 'before-save-hook 'whitespace-cleanup nil)
+            )
+  (require 'dap-dlv-go)
   )
 #+END_SRC
 
@@ -469,14 +508,13 @@ Or use external tool.
 #+begin_src emacs-lisp
 (use-package dap-mode
   :ensure t
-
   ;; Uncomment the config below if you want all UI panes to be hidden by default!
   ;; :custom
   ;; (lsp-enable-dap-auto-configure nil)
-  ;; :config
-  ;; (dap-ui-mode 1)
-  :commands dap-debug
   :config
+  ;; (dap-ui-mode 1)
+  ;; :commands dap-debug
+  ;; :config
   ;; Set up Node debugging
   ;; (require 'dap-node)
   ;;  (dap-node-setup) ;; Automatically installs Node debug adapter if needed
@@ -512,13 +550,8 @@ explore yasnippet. What is org default?
 ** Python
 
 #+BEGIN_SRC emacs-lisp
-  (use-package lsp-pyright
-    :ensure t
-;;    :config  (progn
-;; use flycheck, not flymake
-;;(setq lsp-pyright-auto-search-paths nil)
-;;(setq lsp-pyright-multi-root nil)
-;;)
+(use-package lsp-pyright
+  :after lsp-mode
 )
 #+END_SRC
 
@@ -538,6 +571,12 @@ explore yasnippet. What is org default?
 (use-package rego-mode
   :ensure t
 )
+#+END_SRC
+
+** TLA+
+
+#+BEGIN_SRC emacs-lisp
+;; (use-package tla-mode :mode \".tla$")
 #+END_SRC
 
 * TODO Refactoring
